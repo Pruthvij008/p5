@@ -1,0 +1,120 @@
+import pandas as pd
+from tensorflow.keras.models import Sequential
+from tensorflow.keras.layers import Conv2D, MaxPooling2D, Flatten, Dense,Dropout
+import matplotlib.pyplot as plt
+train_df = pd.read_csv('fashion-mnist_train.csv')
+test_df = pd.read_csv('fashion-mnist_test.csv')
+train_df.shape
+train_df.describe
+train_df.info()
+train_df.isnull().sum()
+train_df.label.unique()
+class_names = ['T-shirt/top', 'Trouser', 'Pullover', 'Dress', 'Coat','Sandal', 'Shirt', 'Sneaker', 'Bag', 'Ankle boot']
+X_train = train_df.drop('label', axis=1).values.reshape(-1, 28, 28, 1) / 255.0
+y_train = train_df['label'].values
+X_test = test_df.drop('label', axis=1).values.reshape(-1, 28, 28, 1) / 255.0
+y_test = test_df['label'].values
+
+plt.figure(figsize=(10, 10))
+for i in range(25):
+    plt.subplot(5, 5, i + 1)
+    plt.imshow(X_train[i], cmap='binary')
+    plt.axis('off')
+    plt.title(f"Pred: {class_names[y_train[i]]}", fontsize=10)
+
+plt.tight_layout()
+plt.show()
+
+image_rows = 28
+image_cols = 28
+image_shape = (image_rows,image_cols,1) 
+model = Sequential([
+    Conv2D(32, (3, 3), activation='relu'),
+    MaxPooling2D((2, 2)),
+    Flatten(), #convert multidimensional data into a 1D vector
+    Dense(10, activation='softmax')
+])
+
+# Compile the model
+model.compile(optimizer='adam', loss='sparse_categorical_crossentropy', metrics=['accuracy'])
+
+# Train the model
+model.fit(X_train, y_train, epochs=5, batch_size=64, validation_data=(X_test, y_test))
+
+model.summary()
+accuracy=model.evaluate(X_test,y_test)
+y_probas = model.predict(X_test)
+y_pred = y_probas.argmax(axis=-1)
+y_pred
+
+plt.figure(figsize=(10, 10))
+for i in range(25):
+    plt.subplot(5, 5, i + 1)
+    plt.imshow(X_test[i], cmap='gray')
+    plt.axis('off')
+    plt.title(f"Pred: {class_names[y_pred[i]]} \nActual {class_names[y_test[i]]}", fontsize=10)
+
+plt.tight_layout()
+plt.show()
+
+
+import pandas as pd
+
+df = pd.read_csv('fashion-mnist_train.csv')
+print(sorted(df['label'].unique()))
+
+# Visual check on actual labels
+label_to_name = {
+    0: 'T-shirt/top',
+    1: 'Trouser',
+    2: 'Pullover',
+    3: 'Dress',
+    4: 'Coat',
+    5: 'Sandal',
+    6: 'Shirt',
+    7: 'Sneaker',
+    8: 'Bag',
+    9: 'Ankle boot'
+}
+
+plt.figure(figsize=(10, 10))
+for i in range(25):
+    plt.subplot(5, 5, i + 1)
+    plt.imshow(X_train[i], cmap='binary')
+    plt.axis('off')
+    label = y_train[i]
+    plt.title(f"Label: {label_to_name[label]}", fontsize=10)
+plt.tight_layout()
+plt.show()
+
+
+y_train
+X_train = train_df.drop('label', axis=1).values.reshape(-1, 28, 28, 1) / 255.0
+y_train = train_df['label'].values
+X_test = test_df.drop('label', axis=1).values.reshape(-1, 28, 28, 1) / 255.0
+y_test = test_df['label'].values
+y_train
+index = 9
+
+# Extract the image (shape will be (28, 28, 1))
+sample_image = X_test[index]
+
+# Add an extra dimension to make it (1, 28, 28, 1) — model expects batch input
+sample_input = sample_image.reshape(1, 28, 28, 1)
+
+# Predict using the model
+prediction = model.predict(sample_input)
+
+# Get the predicted class
+predicted_class = prediction.argmax()
+
+# Print predicted and actual class
+print(f"Predicted class: {class_names[predicted_class]}")
+print(f"Actual class: {class_names[y_test[index]]}")
+
+# Show the image
+plt.imshow(sample_image.reshape(28, 28), cmap='gray')
+plt.axis('off')
+plt.title(f"Predicted: {class_names[predicted_class]}\nActual: {class_names[y_test[index]]}")
+plt.show()
+
